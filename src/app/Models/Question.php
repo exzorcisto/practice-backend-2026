@@ -9,6 +9,8 @@ class Question extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'survey_id',
         'type',

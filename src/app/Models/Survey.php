@@ -9,11 +9,14 @@ class Survey extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+    
     protected $fillable = [
         'author_id',
         'title',
         'description',
-        'status' // draft, published, closed
+        'status',
+        'priority' // Добавь это!
     ];
 
     public function author()

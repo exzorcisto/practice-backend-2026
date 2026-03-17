@@ -13,7 +13,8 @@ return new class extends Migration
             $table->foreignId('author_id')->constrained('users');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('status')->default('active');
+            $table->string('status')->default('draft'); 
+            $table->integer('priority')->default(0);
             $table->timestamp('created_at')->useCurrent();
         });
     }
