@@ -10,26 +10,29 @@ use Illuminate\Support\Facades\Validator;
 
 class QuestionController extends Controller
 {
+    /**
+     * Добавление вопросов к опросу
+     */
     public function store(Request $request, $surveyId)
     {
         $user = $request->user();
 
-        // 1. Проверка роли (1 - автор по твоему сидеру)
-        if ((int)$user->role !== 1) {
-            return response()->json(['message' => 'Доступ запрещен. Вы не автор.'], 403);
+        // 1. Поиск опроса (если не найден — 404 автоматически)
+        $survey = Survey::findOrFail($surveyId);
+
+        // 2. Проверка прав: только автор может менять структуру
+        if ((int)$user->role !== 1 || $survey->author_id !== $user->id) {
+            return response()->json(['message' => 'Доступ запрещен. Это не ваш опрос.'], 403);
         }
 
-        // 2. Проверка существования опроса и прав собственности
-        $survey = Survey::find($surveyId);
-        if (!$survey) {
-            return response()->json(['message' => 'Опрос не найден'], 404);
+        // 3. ФИЧА: Запрет редактирования структуры опубликованного/закрытого опроса
+        if ($survey->status !== 'draft') {
+            return response()->json([
+                'message' => "Нельзя изменять структуру. Опрос уже в статусе: {$survey->status}."
+            ], 403);
         }
 
-        if ($survey->author_id !== $user->id) {
-            return response()->json(['message' => 'Это не ваш опрос!'], 403);
-        }
-
-        // 3. Валидация входных данных
+        // 4. Валидация входящего массива вопросов
         $validator = Validator::make($request->all(), [
             'questions' => 'required|array|min:1',
             'questions.*.type' => 'required|in:radio,checkbox,text',
@@ -41,20 +44,20 @@ class QuestionController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // 4. Сохранение вопросов
+        // 5. Сохранение вопросов
         $results = [];
         foreach ($request->questions as $qData) {
             $results[] = Question::create([
-                'survey_id' => $surveyId,
-                'type' => $qData['type'],
-                'content' => $qData['content'],
+                'survey_id'   => $survey->id,
+                'type'        => $qData['type'],
+                'content'     => $qData['content'],
                 'order_index' => $qData['order_index'],
             ]);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Вопросы успешно добавлены',
+            'message' => 'Вопросы успешно добавлены к черновику',
             'data' => $results
         ], 201);
     }
