@@ -16,7 +16,7 @@ class Survey extends Model
         'title',
         'description',
         'status',
-        'priority' // Добавь это!
+        'priority'
     ];
 
     public function author()

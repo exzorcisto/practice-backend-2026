@@ -11,10 +11,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Роли
-        DB::table('role')->insert([
+        DB::table('role')->upsert([
             ['id' => 1, 'name_role' => 'author'],
             ['id' => 2, 'name_role' => 'listener'],
-        ]);
+        ], ['id'], ['name_role']);
 
         // 2. Пользователи
         $authorId = DB::table('users')->insertGetId([

@@ -1,0 +1,125 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Survey System API",
+    "description": "Полная документация системы управления опросами",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Локальный сервер разработки"
+    }
+  ],
+  "paths": {
+    "/api/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Авторизация пользователя",
+        "description": "Получение Bearer токена для доступа к защищенным роутам",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "admin@example.com" },
+                  "password": { "type": "string", "example": "password123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Успешный вход, возвращает plainTextToken" }
+        }
+      }
+    },
+    "/api/surveys": {
+      "get": {
+        "tags": ["Surveys"],
+        "summary": "Список всех опросов",
+        "parameters": [
+          { "name": "filter", "in": "query", "schema": { "type": "string", "enum": ["mine", "active", "closed"] } }
+        ],
+        "responses": { "200": { "description": "Список опросов получен" } }
+      }
+    },
+    "/api/author/surveys": {
+      "post": {
+        "tags": ["Author Actions"],
+        "summary": "Создать новый опрос",
+        "security": [{ "sanctum": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "Опрос по качеству сервиса" },
+                  "description": { "type": "string" },
+                  "priority": { "type": "integer", "example": 1 }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Опрос успешно создан" } }
+      }
+    },
+    "/api/listener/surveys/{surveyId}/answers": {
+      "post": {
+        "tags": ["Listener Actions"],
+        "summary": "Отправить ответы на опрос",
+        "security": [{ "sanctum": [] }],
+        "parameters": [
+          { "name": "surveyId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "question_id": { "type": "integer" },
+                        "option_id": { "type": "integer", "nullable": true },
+                        "text_answer": { "type": "string", "nullable": true }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Ответы приняты" } }
+      }
+    },
+    "/api/author/surveys/{id}/analytics": {
+      "get": {
+        "tags": ["Author Actions"],
+        "summary": "Просмотр аналитики опроса",
+        "security": [{ "sanctum": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Данные аналитики в формате JSON" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Введите токен, полученный при логине"
+      }
+    }
+  }
+}

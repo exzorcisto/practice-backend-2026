@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // 1. Валидация (используем email и password из запроса)
+        // 1. валидация (используем email и password из запроса)
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -22,10 +22,10 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // 2. Ищем пользователя по email
+        // 2. ищем пользователя по email
         $user = User::where('email', $request->email)->first();
 
-        // 3. ПРОВЕРКА: Сравниваем пароль с полем password_hash
+        // 3. проверка: Сравниваем пароль с полем password_hash
         if (!$user || !Hash::check($request->password, $user->password_hash)) {
             return response()->json([
                 'status' => 'error',
@@ -33,7 +33,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // 4. Генерируем токен Sanctum
+        // 4. генерируем токен
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -47,7 +47,7 @@ class AuthController extends Controller
     }
     public function register(Request $request)
     {
-        // 1. Валидация входящих данных
+        // 1. валидация входящих данных
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -61,17 +61,17 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // 2. Создание пользователя
+        // 2. создание пользователя
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Хешируем пароль!
+            'password' => Hash::make($request->password),
         ]);
 
-        // 3. Создание API-токена (если используете Sanctum)
+        // 3. создание API-токена
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // 4. Ответ клиенту
+        // 4. ответ клиенту
         return response()->json([
             'status' => 'success',
             'message' => 'User created successfully',

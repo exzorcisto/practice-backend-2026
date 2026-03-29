@@ -13,7 +13,10 @@ return new class extends Migration
             $table->string('username');
             $table->string('email')->unique();
             $table->string('password_hash');
+
+            // Указываем таблицу 'role', так как она в единственном числе
             $table->foreignId('role')->constrained('role');
+
             $table->timestamp('created_at')->useCurrent();
         });
     }

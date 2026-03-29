@@ -1,0 +1,1 @@
+C:\ProgramData\ComposerSetup\bin\composer.bat require laravel / sanctum   

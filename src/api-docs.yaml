@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  title: Survey API
+  version: 1.0.0
+paths:
+  /api/listener/surveys/{id}/answers:
+    post:
+      summary: Отправка ответов на опрос
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Ответы сохранены
+        '403':
+          description: Опрос закрыт или уже пройден

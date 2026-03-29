@@ -14,8 +14,8 @@ class Answer extends Model
     protected $fillable = [
         'response_id',
         'question_id',
-        'option_id',    // Заполняется для single/multi choice
-        'text_answer'   // Заполняется для типа text
+        'option_id',   
+        'text_answer'   
     ];
 
     public function response()
