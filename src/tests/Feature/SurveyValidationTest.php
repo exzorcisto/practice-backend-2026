@@ -13,8 +13,6 @@ class SurveyValidationTest extends TestCase
 
     private function createTestUser($roleId = 2)
     {
-        // Если база ругается на 'name', пробуем 'name_role'. 
-        // Но судя по последней ошибке, проблема была в 'role_id' в таблице users.
         DB::table('role')->insertOrIgnore([
             ['id' => 1, 'name_role' => 'Author'],
             ['id' => 2, 'name_role' => 'Listener']
@@ -24,7 +22,7 @@ class SurveyValidationTest extends TestCase
             'username' => 'user_' . uniqid(),
             'email' => 'email_' . uniqid() . '@test.com',
             'password_hash' => Hash::make('password'),
-            'role' => $roleId, // ЗАМЕНИЛ role_id на role
+            'role' => $roleId,
             'created_at' => now(),
         ]);
 
